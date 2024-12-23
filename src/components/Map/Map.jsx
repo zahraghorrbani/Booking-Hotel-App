@@ -1,11 +1,9 @@
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
-import { useHotels } from "../context/HotelsProvider"
+import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvent } from "react-leaflet";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useGeoLocation from './../../hooks/useGeoLocation';
 
-function Map() {
-    const { isloading, hotels } = useHotels();
+function Map({markerLocations}) {
     const [mapCenter, setMapCenter] = useState([50, 10]);
     const [searchParams, setSearchparams] = useSearchParams();
     const lat = searchParams.get("lat");
@@ -18,7 +16,7 @@ function Map() {
 
     useEffect(() => {
         if (geoPosition?.lat && geoPosition?.lng) setMapCenter([geoPosition?.lat, geoPosition?.lng]);
-    }, [geoPosition?.lat,geoPosition?.lng]);
+    }, [geoPosition?.lat, geoPosition?.lng]);
 
     return (
         <div className="mapContainer">
@@ -28,9 +26,10 @@ function Map() {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 <button onClick={getPosition} className="getLocation">{isLoadingGeoPosition ? "Loading..." : "Use Your Location"}</button>
+                <DetectClick />
                 <ChangeCenter position={mapCenter} />
                 {
-                    hotels.map((item) => (
+                    markerLocations.map((item) => (
                         <Marker key={item.id} position={[item.latitude, item.longitude]}>
                             <Popup>
                                 {item.host_location}
@@ -47,5 +46,13 @@ export default Map;
 function ChangeCenter({ position }) {
     const map = useMap();
     map.setView(position);
+    return null;
+}
+
+function DetectClick() {
+    const navigate = useNavigate();
+    useMapEvent({
+        click: e => navigate(`/bookmark?lat=${e.latlng.lat}&lng=${e.latlng.lng}`)
+    });
     return null;
 }
