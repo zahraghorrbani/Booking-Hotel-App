@@ -4,7 +4,7 @@ function Loader() {
     return (
         <div
             style={{
-                color: "red",
+                color: "black",
                 display: "flex",
                 alignItems: "center",
                 gap: "1rem",
